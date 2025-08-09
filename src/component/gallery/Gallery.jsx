@@ -58,20 +58,30 @@ export default function Gallery() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploadedItems, setUploadedItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load uploaded items from localStorage
+  // Load uploaded items from API
   useEffect(() => {
-    const savedItems = localStorage.getItem('galleryItems');
-    if (savedItems) {
-      setUploadedItems(JSON.parse(savedItems));
-    }
+    const fetchUploadedItems = async () => {
+      try {
+        const response = await fetch('/api/gallery');
+        if (!response.ok) throw new Error('Failed to fetch gallery items');
+        const data = await response.json();
+        setUploadedItems(data);
+      } catch (error) {
+        console.error('Error fetching gallery items:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUploadedItems();
   }, []);
 
   // Combine default and uploaded items
   const galleryItems = [...defaultGalleryItems, ...uploadedItems];
 
   const openModal = (index) => {
-    setSelectedImage(galleryItems[index].image);
+    setSelectedImage(galleryItems[index].image || galleryItems[index].imageUrl);
     setCurrentIndex(index);
     setIsModalOpen(true);
     document.body.style.overflow = "hidden";
@@ -85,14 +95,12 @@ export default function Gallery() {
   const navigate = (direction) => {
     let newIndex;
     if (direction === "prev") {
-      newIndex =
-        currentIndex === 0 ? galleryItems.length - 1 : currentIndex - 1;
+      newIndex = currentIndex === 0 ? galleryItems.length - 1 : currentIndex - 1;
     } else {
-      newIndex =
-        currentIndex === galleryItems.length - 1 ? 0 : currentIndex + 1;
+      newIndex = currentIndex === galleryItems.length - 1 ? 0 : currentIndex + 1;
     }
     setCurrentIndex(newIndex);
-    setSelectedImage(galleryItems[newIndex].image);
+    setSelectedImage(galleryItems[newIndex].image || galleryItems[newIndex].imageUrl);
   };
 
   useEffect(() => {
@@ -102,6 +110,14 @@ export default function Gallery() {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+      </div>
+    );
+  }
 
   return (
     <section className="bg-white">
@@ -166,84 +182,90 @@ export default function Gallery() {
         </motion.div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {galleryItems.map((item, i) => {
-            // Check if the image is from default or uploaded
-            const isDefaultImage = i < defaultGalleryItems.length;
-            
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.03 }}
-                onHoverStart={() => setHoveredIndex(i)}
-                onHoverEnd={() => setHoveredIndex(null)}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="group relative"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-xl">
-                  {isDefaultImage ? (
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover transition-all duration-500 group-hover:scale-105"
-                      quality={90}
-                    />
-                  ) : (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
-                    />
-                  )}
+        {galleryItems.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No images available in the gallery</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {galleryItems.map((item, i) => {
+              const isDefaultImage = i < defaultGalleryItems.length;
+              const imageSrc = isDefaultImage ? item.image : item.imageUrl;
+              
+              return (
+                <motion.div
+                  key={isDefaultImage ? `default-${i}` : `uploaded-${item.id}`}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.03 }}
+                  onHoverStart={() => setHoveredIndex(i)}
+                  onHoverEnd={() => setHoveredIndex(null)}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                  className="group relative"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-xl">
+                    {isDefaultImage ? (
+                      <Image
+                        src={imageSrc}
+                        alt={item.title}
+                        fill
+                        className="object-cover transition-all duration-500 group-hover:scale-105"
+                        quality={90}
+                      />
+                    ) : (
+                      <img
+                        src={imageSrc}
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                      />
+                    )}
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{
-                      y: hoveredIndex === i ? 0 : 20,
-                      opacity: hoveredIndex === i ? 1 : 0,
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute bottom-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    {item.category}
-                  </motion.div>
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{
+                        y: hoveredIndex === i ? 0 : 20,
+                        opacity: hoveredIndex === i ? 1 : 0,
+                      }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute bottom-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      {item.category}
+                    </motion.div>
 
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{
-                      scale: hoveredIndex === i ? 1 : 0.8,
-                      opacity: hoveredIndex === i ? 1 : 0,
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 rounded-full cursor-pointer shadow-lg hover:bg-amber-50 transition-colors"
-                    onClick={() => openModal(i)}
-                  >
-                    <ZoomIn className="text-amber-600" size={24} />
-                  </motion.div>
-                </div>
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{
+                        scale: hoveredIndex === i ? 1 : 0.8,
+                        opacity: hoveredIndex === i ? 1 : 0,
+                      }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 rounded-full cursor-pointer shadow-lg hover:bg-amber-50 transition-colors"
+                      onClick={() => openModal(i)}
+                    >
+                      <ZoomIn className="text-amber-600" size={24} />
+                    </motion.div>
+                  </div>
 
-                <div className="mt-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {item.title}
-                  </h3>
-                  {!isDefaultImage && item.description && (
-                    <p className="text-gray-600 text-sm mt-1 line-clamp-2">
-                      {item.description}
-                    </p>
-                  )}
-                </div>
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {item.title}
+                    </h3>
+                    {!isDefaultImage && item.description && (
+                      <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
 
-                <div className="absolute inset-0 rounded-2xl pointer-events-none transition-all duration-300 -z-10"></div>
-              </motion.div>
-            );
-          })}
-        </div>
+                  <div className="absolute inset-0 rounded-2xl pointer-events-none transition-all duration-300 -z-10"></div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Full Image Modal */}
         <AnimatePresence>

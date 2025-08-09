@@ -14,18 +14,37 @@ export default function AddImage() {
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Load saved images from localStorage on component mount
+  // Load images from server on component mount
   useEffect(() => {
-    const savedItems = localStorage.getItem('galleryItems');
-    if (savedItems) {
-      setGalleryItems(JSON.parse(savedItems));
-    }
+    const fetchImages = async () => {
+      try {
+        const response = await fetch('/api/gallery');
+        if (!response.ok) throw new Error('Failed to fetch images');
+        const data = await response.json();
+        setGalleryItems(data);
+      } catch (error) {
+        console.error('Error loading images:', error);
+        setError('Failed to load gallery images');
+      }
+    };
+    fetchImages();
   }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file type and size
+      if (!file.type.match('image.*')) {
+        setError('Please select an image file (JPEG, PNG, GIF)');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setNewImage(prev => ({
@@ -33,6 +52,7 @@ export default function AddImage() {
           image: file,
           preview: reader.result
         }));
+        setError(null);
       };
       reader.readAsDataURL(file);
     }
@@ -46,26 +66,35 @@ export default function AddImage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!newImage.image || !newImage.title) return;
+    if (!newImage.image || !newImage.title) {
+      setError('Please provide both an image and a title');
+      return;
+    }
 
     setIsUploading(true);
+    setError(null);
 
-    // Simulate upload process
-    setTimeout(() => {
-      const newItem = {
-        id: Date.now(), // Add unique ID for each item
-        image: newImage.preview,
-        title: newImage.title,
-        category: newImage.category || 'Uncategorized',
-        date: new Date().toISOString() // Add timestamp
-      };
+    try {
+      const formData = new FormData();
+      formData.append('image', newImage.image);
+      formData.append('title', newImage.title);
+      formData.append('category', newImage.category || 'Uncategorized');
 
-      const updatedItems = [...galleryItems, newItem];
-      setGalleryItems(updatedItems);
-      localStorage.setItem('galleryItems', JSON.stringify(updatedItems));
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      const uploadedImage = await response.json();
+      
+      setGalleryItems(prev => [uploadedImage, ...prev]);
       setNewImage({
         image: null,
         preview: '',
@@ -73,17 +102,40 @@ export default function AddImage() {
         category: '',
       });
 
-      setIsUploading(false);
       setIsSuccess(true);
-      
       setTimeout(() => setIsSuccess(false), 3000);
-    }, 1500);
+    } catch (error) {
+      console.error('Upload error:', error);
+      setError(error.message || 'Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const removeImage = (index) => {
-    const updatedItems = galleryItems.filter((_, i) => i !== index);
-    setGalleryItems(updatedItems);
-    localStorage.setItem('galleryItems', JSON.stringify(updatedItems));
+  const removeImage = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this image?')) return;
+
+    try {
+      const response = await fetch(`/api/gallery/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete image');
+      }
+
+      // Optimistic update
+      setGalleryItems(prev => prev.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Delete error:', error);
+      setError(error.message || 'Failed to delete image');
+      
+      // Re-fetch to sync with server
+      const response = await fetch('/api/gallery');
+      const data = await response.json();
+      setGalleryItems(data);
+    }
   };
 
   return (
@@ -105,14 +157,24 @@ export default function AddImage() {
             Upload and describe images to showcase in your gallery
           </p>
           
-          {/* Add link to gallery page */}
+          {/* Link to gallery page */}
           <div className="mt-6">
-            <Link href="/gallery" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+            <Link 
+              href="/gallery" 
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200"
+            >
               <GalleryThumbnails className="mr-2 h-5 w-5" />
               View Gallery Page
             </Link>
           </div>
         </motion.div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
 
         {/* Upload Form */}
         <motion.div
@@ -206,7 +268,6 @@ export default function AddImage() {
                   placeholder="Modern, Minimalist, Luxury, etc."
                 />
               </div>
-              
 
               {/* Submit Button */}
               <div className="pt-2">
@@ -258,23 +319,24 @@ export default function AddImage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {galleryItems.map((item, index) => (
+              {galleryItems.map((item) => (
                 <motion.div
-                  key={index}
+                  key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  transition={{ duration: 0.3 }}
                   className="border border-gray-200 rounded-lg overflow-hidden"
                 >
                   <div className="relative aspect-square">
                     <img
-                      src={item.image}
+                      src={item.imageUrl}
                       alt={item.title}
                       className="w-full h-full object-cover"
                     />
                     <button
-                      onClick={() => removeImage(index)}
+                      onClick={() => removeImage(item.id)}
                       className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-red-100 hover:text-red-600 transition-colors"
+                      aria-label={`Delete ${item.title}`}
                     >
                       <X className="w-4 h-4" />
                     </button>

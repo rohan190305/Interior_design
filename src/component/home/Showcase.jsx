@@ -9,9 +9,9 @@ const items = [
   { image: '/images/k.jpg', category: 'Modern' },
   { image: '/images/k2.jpg', category: 'Minimalist' },
   { image: '/images/k6.jpg', category: 'Luxury' },
-  { image: '/images/k4.jpg', category: 'Contemporary' },
-  { image: '/images/k5.jpg', category: 'Industrial' },
-  { image: '/images/k3.jpg', category: 'Scandinavian' },
+  { image: '/images/best.jpg', category: 'Contemporary' },
+  { image: '/images/best2.jpg', category: 'Industrial' },
+  { image: '/images/a4.jpg', category: 'Scandinavian' },
 ];
 
 export default function Showcase() {
