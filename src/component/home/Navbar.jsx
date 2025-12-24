@@ -9,6 +9,7 @@ const navItems = [
   { name: "About Us", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Gallery", href: "/gallery" },
+  { name: "Build", href: "/kitchen-design" },
   { name: "Contact Us", href: "/contact" },
 ];
 
@@ -41,7 +42,7 @@ export default function Navbar() {
           whileHover={{ scale: 1.01 }}
           transition={{ type: "spring", stiffness: 200 }}
         >
-          <span className="text-amber-400">Jas Modular </span>
+          <span className="text-amber-400">Modular </span>
           <span className="text-white">& Interior</span>
         </motion.div>
 

@@ -9,7 +9,7 @@ const WhatsAppWidget = () => {
 
   // Pre-filled message
   const message = encodeURIComponent(
-    "Hello! I recently visited your website, Jas Modular & Interior Designers, and was very impressed with your work. I'm interested in designing a new kitchen and would love to discuss the possibilities with you. Looking forward to hearing from you!"
+    "Hello! I recently visited your website, Modular & Interior Designers, and was very impressed with your work. I'm interested in designing a new kitchen and would love to discuss the possibilities with you. Looking forward to hearing from you!"
   );
 
   return (
@@ -80,36 +80,36 @@ const WhatsAppWidget = () => {
 
             {/* Person 1 */}
             <a
-              href={`https://wa.me/8551890373?text=${message}`}
+              href={`https://wa.me/99999999?text=${message}`} //add your original number
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center mb-4 p-2 hover:bg-gray-100 rounded-lg transition"
             >
               <img 
                 src="/images/p1.png" 
-                alt="Kedar Ahire" 
+                alt="P1" 
                 className="w-12 h-12 rounded-full mr-3 border-2 border-green-500" 
               />
               <div>
-                <p className="font-semibold text-sm">Kedar Ahire</p>
+                <p className="font-semibold text-sm">Person 1</p>
                 <p className="text-xs text-gray-500">Owner</p>
               </div>
             </a>
 
             {/* Person 2 */}
             <a
-              href={`https://wa.me/7666344988?text=${message}`}
+              href={`https://wa.me/99999999?text=${message}`} //add your original number
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center p-2 hover:bg-gray-100 rounded-lg transition"
             >
               <img 
                 src="/images/p2.png" 
-                alt="Kalvinder Ahire" 
+                alt="P2" 
                 className="w-12 h-12 rounded-full mr-3 border-2 border-green-500" 
               />
               <div>
-                <p className="font-semibold text-sm">Kalvinder Ahire</p>
+                <p className="font-semibold text-sm">Person 2</p>
                 <p className="text-xs text-gray-500">Sales & Enquiry</p>
               </div>
             </a>

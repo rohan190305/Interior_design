@@ -45,7 +45,7 @@ export default function CTA() {
           </h2>
 
           {/* Centered Button */}
-          <Link href="/contact">
+          <Link href="/kitchen-design">
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

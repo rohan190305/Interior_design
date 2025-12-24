@@ -81,7 +81,7 @@ export default function About() {
               <p>
                 At{" "}
                 <span className="font-semibold text-amber-600">
-                  JAS Modular & Interior Designers
+                   Modular & Interior Designers
                 </span>
                 , we understand that embarking on an interior design project is
                 an exciting, yet often daunting, endeavor. That's why we're here

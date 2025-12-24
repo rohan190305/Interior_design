@@ -72,13 +72,13 @@ export default function ServicesSection() {
           {services.map((service, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               whileHover={{ y: -10 }}
               transition={{
                 type: "spring",
-                stiffness: 300,
-                damping: 15,
+                stiffness: 100,
+                damping: 5,
                 delay: index * 0.1,
               }}
               viewport={{ once: true }}

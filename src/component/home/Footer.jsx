@@ -30,7 +30,7 @@ export default function Footer() {
                 <Home className="text-white" size={20} />
               </div>
               <div>
-                <h4 className="text-white font-bold text-xl">Jas Modular</h4>
+                <h4 className="text-white font-bold text-xl">Modular</h4>
                 <p className="text-sm text-gray-400">& Interface Designers</p>
               </div>
             </div>
@@ -63,6 +63,10 @@ export default function Footer() {
                 <li className="flex items-center space-x-2 hover:text-white transition">
                 <Image size={16} />
                 <Link href="/gallery">Gallery</Link>
+              </li>
+              <li className="flex items-center space-x-2 hover:text-white transition">
+                <Image size={16} />
+                <Link href="/kitchen-design">Build</Link>
               </li>
                 <li className="flex items-center space-x-2 hover:text-white transition">
                   <Folder size={16} />
@@ -195,11 +199,11 @@ export default function Footer() {
               {[
                 {
                   Icon: Facebook,
-                  url: "https://www.facebook.com/share/1NcTK2s3K6/?mibextid=wwXIfr",
+                  url: "https://www.facebook.com/",
                 },
                 {
                   Icon: Instagram,
-                  url: "https://www.instagram.com/jas.interior?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+                  url: "https://www.instagram.com/",
                 },
                 { Icon: Twitter, url: "https://twitter.com" },
                 { Icon: Linkedin, url: "https://linkedin.com" },
@@ -221,18 +225,18 @@ export default function Footer() {
             </div>
             <div className="flex items-center space-x-2 mb-2 text-sm">
               <Mail className="text-blue-400" size={16} />
-              <a href="mailto:info@jasmodular.com">Kedarahire05@gmail.com</a>
+              <a href="mailto:info@jasmodular.com">your@gmail.com</a>
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <Phone className="text-pink-500" size={16} />
-              <a href="tel:+15551234567">+91-8551890373/ 7666344988</a>
+              <a href="tel:+15551234567">+91-xxxxxxxxxx</a>
             </div>
           </div>
         </div>
 
         {/* Bottom Text */}
         <div className="border-t border-gray-700 mt-12 pt-6 text-center text-sm text-gray-500">
-          © 2025 Jas Modular & Interior Designers. All rights reserved.
+          © 2025 Modular & Interior Designers. All rights reserved.
         </div>
       </div>
     </footer>

@@ -42,7 +42,7 @@ export default function ProfessionalContactPage() {
     setSubmitStatus({ success: null, message: '' });
 
     const formData = new FormData(event.target);
-    formData.append("access_key", "3d4ec606-8e78-4eec-a973-407cce5dd1d5");
+    formData.append("access_key", "YOUR API KEY"); //Add your API key here
 
     try {
       const object = Object.fromEntries(formData);
@@ -256,7 +256,7 @@ export default function ProfessionalContactPage() {
               </div>
               <div>
                 <h4 className="font-medium text-gray-900">Email Us</h4>
-                <p className="text-gray-600">Kedarahire05@gmail.com</p>
+                <p className="text-gray-600">your@gmail.com</p>
               </div>
             </div>
           </div>
@@ -268,7 +268,7 @@ export default function ProfessionalContactPage() {
               </div>
               <div>
                 <h4 className="font-medium text-gray-900">Call Us</h4>
-                <p className="text-gray-600">+91-8551890373/ 7666344988</p>
+                <p className="text-gray-600">+91-99999999</p>
               </div>
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function ProfessionalContactPage() {
               </div>
               <div>
                 <h4 className="font-medium text-gray-900">Visit Us</h4>
-                <p className="text-gray-600">Vasai East, Yashwant smart city</p>
+                <p className="text-gray-600">Your Address </p>
               </div>
             </div>
           </div>
